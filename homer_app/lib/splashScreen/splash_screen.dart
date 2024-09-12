@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:homer_app/authentication/login_screen.dart';
 import 'package:homer_app/authentication/signup_screen.dart';
 import 'package:homer_app/mainScreens/main_screen.dart';
 
@@ -14,7 +15,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
     Timer(const Duration(seconds: 2), () {
       // send user to home screen
       Navigator.push(
-          context, MaterialPageRoute(builder: (c) => const SignUpScreen()));
+          context, MaterialPageRoute(builder: (c) => const LoginScreen()));
     });
   }
 
