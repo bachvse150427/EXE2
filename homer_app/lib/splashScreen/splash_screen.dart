@@ -1,28 +1,28 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:homer_app/authentication/signup_screen.dart';
 import 'package:homer_app/mainScreens/main_screen.dart';
 
 class MySplashScreen extends StatefulWidget {
-  const MySplashScreen({Key? key}) : super(key: key);
+  const MySplashScreen({super.key});
   @override
   _MySplashScreenState createState() => _MySplashScreenState();
-
 }
 
 class _MySplashScreenState extends State<MySplashScreen> {
-
   startTimer() {
     Timer(const Duration(seconds: 2), () {
       // send user to home screen
-      Navigator.push(context, MaterialPageRoute(builder: (c) => MainScreen()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (c) => const SignUpScreen()));
     });
   }
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
     startTimer();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +33,15 @@ class _MySplashScreenState extends State<MySplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('images/logo1.png'),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             const Text(
-                'Homer & learn App',
+              '   Homer',
               style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold
-      
-              ),
+                  fontSize: 30,
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
