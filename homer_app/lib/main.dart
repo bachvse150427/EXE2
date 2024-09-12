@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:homer_app/splashScreen/splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,12 +11,7 @@ void main() async{
                               theme: ThemeData(
                               primarySwatch: Colors.blue,
                               ),
-              home: Scaffold(
-                              appBar: AppBar(
-                                             title: Text('Chào mừng đến với Homer!'),
-                                            ),
-              body: Center(child: Text("HALOO")), // Add a body or child widget here
-                            ),
+              home: const MySplashScreen(),
 
               debugShowCheckedModeBanner: false,
                           ),
