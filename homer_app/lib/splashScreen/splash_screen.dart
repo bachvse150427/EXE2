@@ -37,7 +37,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
               height: 10,
             ),
             const Text(
-              '   Homer',
+              '       Homer',
               style: TextStyle(
                   fontSize: 30,
                   color: Colors.orange,
