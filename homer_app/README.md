@@ -1,6 +1,6 @@
 # homer_app
 
-A new Flutter project.
+A new Flutter project. homers help user
 
 ## Getting Started
 

@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
+import "package:image_picker/image_picker.dart" show ImagePicker, ImageSource, XFile;
+import 'dart:io';
 
 class PerInfoScreen extends StatefulWidget {
+  const PerInfoScreen({super.key});
+
+
+
   @override
-  State<PerInfoScreen> createState() => _PerInfoScreenStateState();
+  State<PerInfoScreen> createState() => _PerInfoScreenState();
 }
 
-class _PerInfoScreenStateState extends State<PerInfoScreen> {
+class _PerInfoScreenState extends State<PerInfoScreen> {
   TextEditingController informationsTextEditingController = TextEditingController();
-
   List<String> perTypesList = ["Làm Sạch Nhà",]; // Công nghiệp
   String? selectedPerType;
+  File? _image; // Holds the image file
 
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImageFromCamera() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    setState(() {
+      if (image != null) {
+        _image = File(image.path);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +75,7 @@ class _PerInfoScreenStateState extends State<PerInfoScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 10,),
-
             DropdownButton(
               iconSize: 26,
               dropdownColor: Colors.blue,
@@ -73,13 +87,12 @@ class _PerInfoScreenStateState extends State<PerInfoScreen> {
                 ),
               ),
               value: selectedPerType,
-              onChanged: (newValue)
-              {
+              onChanged: (newValue) {
                 setState(() {
                   selectedPerType = newValue.toString();
                 });
               },
-              items: perTypesList.map((car){
+              items: perTypesList.map((car) {
                 return DropdownMenuItem(
                   value: car,
                   child: Text(
@@ -89,24 +102,26 @@ class _PerInfoScreenStateState extends State<PerInfoScreen> {
                 );
               }).toList(),
             ),
+            const SizedBox(height: 20,),
+
+            // Image Display Section
+            _image == null
+                ? const Text(
+              'Chưa Có Ảnh Được Chọn',
+              style: TextStyle(color: Colors.red),
+            )
+                : Image.file(_image!, height: 200, width: 200),
 
             const SizedBox(height: 20,),
 
-            const SizedBox(height: 20,),
-
+            // Button to capture image from camera
             ElevatedButton(
-              onPressed: ()
-              {
-                Navigator.push(context, MaterialPageRoute(builder: (c)=>PerInfoScreen()));
-                {
-                  // saveCarInfo();
-                }
-              },
+              onPressed: _pickImageFromCamera,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.lightGreenAccent,
               ),
               child: const Text(
-              'Lưu Thông Tin',
+                'Chụp Ảnh',
                 style: TextStyle(
                   color: Colors.orange,
                   fontSize: 18,
@@ -114,6 +129,27 @@ class _PerInfoScreenStateState extends State<PerInfoScreen> {
               ),
             ),
 
+            const SizedBox(height: 20,),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (c) => PerInfoScreen()));
+                // Save info logic here
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.lightGreenAccent,
+              ),
+              child: const Text(
+                'Lưu Thông Tin',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: 18,
+                ),
+              ),
+            ),
           ],
         ),
       ),

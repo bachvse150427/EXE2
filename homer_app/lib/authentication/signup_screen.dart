@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:homer_app/authentication/per_info_screen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,6 +15,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController idTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
 
+  validateFrom(){
+    if(nameTextEditingController.text.length<3) {
+      Fluttertoast.showToast(msg: 'Tên Của Đối Tác Phải Nhiều Hơn 3 Ký Tự' );
+    }
+    else if(phoneTextEditingController.text.isEmpty)
+    {
+      Fluttertoast.showToast(msg: "Không Bỏ qua Số Điện Thoại.");
+    }
+    else if(idTextEditingController.text.isEmpty)
+    {
+      Fluttertoast.showToast(msg: "Không Bỏ Số Căn Cước/Căn Cước Công Dân/Chứng Minh Nhân Dân.");
+    }
+    else if(passwordTextEditingController.text.length < 6)
+    {
+      Fluttertoast.showToast(msg: "Mật Khẩu Phải Nhiều Hơn 6 Ký Tự.");
+    }
+    // else
+    // {
+    //   saveDriverInfoNow();
+    // }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,9 +160,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (c) => PerInfoScreen()));
-                  // validateForm();
+                  // Navigator.push(context,
+                  //     MaterialPageRoute(builder: (c) => const PerInfoScreen()));
+                  validateFrom();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.lightGreenAccent,
