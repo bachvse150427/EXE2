@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart' show ImagePicker, ImageSource, XFile;
+import "package:image_picker/image_picker.dart" show ImagePicker, ImageSource, XFile;
 import 'dart:io';
-import 'package:homer_app/global/global.dart';
-import 'package:homer_app/splashScreen/splash_screen.dart';
-import 'package:firebase_database/firebase_database.dart' show DatabaseReference, FirebaseDatabase;
-import "package:fluttertoast/fluttertoast.dart" show Fluttertoast;
 
 class PerInfoScreen extends StatefulWidget {
   const PerInfoScreen({super.key});
+
+
 
   @override
   State<PerInfoScreen> createState() => _PerInfoScreenState();
@@ -15,13 +13,12 @@ class PerInfoScreen extends StatefulWidget {
 
 class _PerInfoScreenState extends State<PerInfoScreen> {
   TextEditingController informationsTextEditingController = TextEditingController();
-  List<String> perTypesList = ["Làm Sạch Nhà"]; // Service types
+  List<String> perTypesList = ["Làm Sạch Nhà",]; // Công nghiệp
   String? selectedPerType;
   File? _image; // Holds the image file
 
   final ImagePicker _picker = ImagePicker();
 
-  // Function to pick an image from the camera
   Future<void> _pickImageFromCamera() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     setState(() {
@@ -31,6 +28,7 @@ class _PerInfoScreenState extends State<PerInfoScreen> {
     });
   }
 
+<<<<<<< HEAD
   // Function to save personal info
   savePerInfo() {
     Map housekeeperInfoMap = {
@@ -48,114 +46,128 @@ class _PerInfoScreenState extends State<PerInfoScreen> {
   }
 
 
+=======
+>>>>>>> parent of bdb1abb (1. fix fontend, and push regit data to firebase but not had reeltime database reup)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[100], // Lighter blue background
+      backgroundColor: Colors.blue,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 40),
-            Image.asset("images/logo1.png", height: 120),
-            const SizedBox(height: 20),
+            const SizedBox(
+              height: 27,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Image.asset("images/logo1.png"),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             const Text(
-              'Thông Tin Đối Tác',
+              'Thông Tin Đối Tác.',
               style: TextStyle(
-                fontSize: 28,
-                color: Colors.black87,
+                fontSize: 27,
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 30),
             TextField(
               controller: informationsTextEditingController,
-              style: const TextStyle(color: Colors.black87),
-              maxLines: 3,
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.black),
+              decoration: const InputDecoration(
                 labelText: 'Giới Thiệu Thông Tin',
-                hintText: 'Giới thiệu về bản thân và kinh nghiệm của bạn...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                hintText: 'Giới Thiệu Thông Tin',
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
                 ),
-                filled: true,
-                fillColor: Colors.white,
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                hintStyle: TextStyle(
+                  color: Colors.lightBlueAccent,
+                  fontSize: 11,
+                ),
+                labelStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-            DropdownButtonFormField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+            const SizedBox(height: 10,),
+            DropdownButton(
+              iconSize: 26,
+              dropdownColor: Colors.blue,
+              hint: const Text(
+                "Chọn Một Loại Dịch Vụ",
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: Colors.orange,
                 ),
-                filled: true,
-                fillColor: Colors.white,
               ),
               value: selectedPerType,
-              hint: const Text("Chọn Một Loại Dịch Vụ"),
               onChanged: (newValue) {
                 setState(() {
                   selectedPerType = newValue.toString();
                 });
               },
-              items: perTypesList.map((service) {
+              items: perTypesList.map((car) {
                 return DropdownMenuItem(
-                  value: service,
-                  child: Text(service),
+                  value: car,
+                  child: Text(
+                    car,
+                    style: const TextStyle(color: Colors.orange),
+                  ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20,),
+
+            // Image Display Section
             _image == null
-                ? Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10),
+                ? const Text(
+              'Chưa Có Ảnh Được Chọn',
+              style: TextStyle(color: Colors.red),
+            )
+                : Image.file(_image!, height: 200, width: 200),
+
+            const SizedBox(height: 20,),
+
+            // Button to capture image from camera
+            ElevatedButton(
+              onPressed: _pickImageFromCamera,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.lightGreenAccent,
               ),
-              child: const Center(
-                child: Text(
-                  'Chưa Có Ảnh Được Chọn',
-                  style: TextStyle(color: Colors.grey),
+              child: const Text(
+                'Chụp Ảnh',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: 18,
                 ),
               ),
-            )
-                : ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(_image!, height: 200, width: double.infinity, fit: BoxFit.cover),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _pickImageFromCamera,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('Chụp Ảnh'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-            const SizedBox(height: 30),
+
+            const SizedBox(height: 20,),
+
             ElevatedButton(
               onPressed: () {
-                if (informationsTextEditingController.text.isNotEmpty &&
-                    _image != null &&
-                    selectedPerType != null) {
-                  savePerInfo();
-                } else {
-                  Fluttertoast.showToast(msg: "Vui lòng điền đầy đủ thông tin.");
-                }
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (c) => PerInfoScreen()));
+                // Save info logic here
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.lightGreenAccent,
               ),
               child: const Text(
                 'Lưu Thông Tin',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: 18,
+                ),
               ),
             ),
           ],
