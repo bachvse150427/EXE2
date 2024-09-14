@@ -33,11 +33,11 @@ class _PerInfoScreenState extends State<PerInfoScreen> {
 
   // Function to save personal info
   savePerInfo() {
-      Map housekeeperInfoMap = {
-        "per_info": informationsTextEditingController.text.trim(),
-        "per_avatar": _image!.path,  // Store the image path
-        "type": selectedPerType,  // Store the selected service type
-      };
+    Map housekeeperInfoMap = {
+      "per_info": informationsTextEditingController.text.trim(),
+      "per_avatar": _image!.path,  // Store the image path
+      "type": selectedPerType,  // Store the selected service type
+    };
 
 
     DatabaseReference housekeeperRef = FirebaseDatabase.instance.ref().child("housekeeper");
@@ -46,6 +46,7 @@ class _PerInfoScreenState extends State<PerInfoScreen> {
     Fluttertoast.showToast(msg: "Thông Tin Về Bạn Đã Lưu.");
     Navigator.push(context, MaterialPageRoute(builder: (c)=> const MySplashScreen()));
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -41,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext c) {
-        return const ProgressDialog(message: "Đang Xữ Lý, Vui Lòng Chờ...");
+        return ProgressDialog(message: "Đang Xữ Lý, Vui Lòng Chờ...");
       },
     );
 
@@ -60,7 +60,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           "idCard": idTextEditingController.text.trim(),
         };
 
-        DatabaseReference housekeeperRef = FirebaseDatabase.instance.ref().child("housekeeper");
+        DatabaseReference housekeeperRef = FirebaseDatabase.instance.ref().child("Housekeeper");
         housekeeperRef.child(firebaseUser.uid).set(housekeeperMap);
 
         currentFirebaseUser = firebaseUser;
@@ -76,7 +76,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       Fluttertoast.showToast(msg: "Lỗi: $error");
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
