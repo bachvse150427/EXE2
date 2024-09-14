@@ -1,27 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:homer_app/splashScreen/splash_screen.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart' show Firebase;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (kIsWeb) {
-    // Firebase initialization for web with FirebaseOptions
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyDY6B4kmNV4sJaso_kmlSUMGzaqpXOiJvI",
-        authDomain: "homer-housekeeper-app-3a60b.firebaseapp.com",
-        projectId: "homer-housekeeper-app-3a60b",
-        storageBucket: "homer-housekeeper-app-3a60b.appspot.com",
-        messagingSenderId: "688168394540",
-        appId: "1:688168394540:web:ec92a874646324c36b1689",
-      ),
-    );
-  } else {
-    // Firebase initialization for non-web (iOS, Android)
-    await Firebase.initializeApp();
-  }
+
+  await Firebase.initializeApp();
 
   runApp(MyApp(
     child: MaterialApp(
