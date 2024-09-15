@@ -16,7 +16,7 @@ class PerInfoScreen extends StatefulWidget {
 
 class _PerInfoScreenState extends State<PerInfoScreen> {
   TextEditingController informationsTextEditingController = TextEditingController();
-  List<String> perTypesList = ["Làm Sạch Nhà"]; // Service types
+  List<String> perTypesList = ["Làm Sạch Nhà", "Điện, Nước Gia Đình"]; // Service types
   String? selectedPerType;
   File? _image; // Holds the image file
 

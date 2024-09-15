@@ -1,42 +1,60 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:homer_app/authentication/login_screen.dart';
+import 'package:homer_app/global/global.dart';
+import 'package:homer_app/mainScreens/main_screen.dart';
 
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({super.key});
+
   @override
   _MySplashScreenState createState() => _MySplashScreenState();
 }
 
-class _MySplashScreenState extends State<MySplashScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _MySplashScreenState extends State<MySplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
+
+    // Initialize animation controller
+    _controller = AnimationController(
       duration: const Duration(seconds: 2),
+      vsync: this,
     );
-    _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
-    _animationController.forward();
+
+    // Define the animation
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward(); // Start the animation
+
+    // Start the timer
     startTimer();
+  }
+
+  startTimer() {
+    Timer(const Duration(seconds: 3), () async {
+      if (firebaseAuthAuth.currentUser != null) {
+        currentFirebaseUser = firebaseAuthAuth.currentUser;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _controller.dispose(); // Dispose the controller when done
     super.dispose();
-  }
-
-  startTimer() {
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (c) => const LoginScreen()),
-      );
-    });
   }
 
   @override

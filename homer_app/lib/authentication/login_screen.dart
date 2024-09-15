@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:homer_app/authentication/signup_screen.dart';
+import 'package:homer_app/global/global.dart';
+import 'package:homer_app/splashScreen/splash_screen.dart';
+import 'package:homer_app/widgets/progress_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,8 +14,68 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailTextEditingController = TextEditingController();
-  final TextEditingController passwordTextEditingController = TextEditingController();
+  // Text editing controllers for form fields
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  // Validate form fields
+  void _validateForm() {
+    if (!_emailController.text.contains("@")) {
+      _showToast("Địa chỉ Email không chính xác.");
+    } else if (_passwordController.text.isEmpty) {
+      _showToast("Mật Khẩu Đăng Nhập Là Cần Thiết.");
+    } else {
+      _loginHousekeeper();
+    }
+  }
+
+  // Display toast message
+  void _showToast(String message) {
+    Fluttertoast.showToast(msg: message);
+  }
+
+  // Login housekeeper
+  Future<void> _loginHousekeeper() async {
+    // Show progress dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const ProgressDialog(message: "Đang Xử Lý, Vui Lòng Chờ...");
+      },
+    );
+
+    try {
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      final User? firebaseUser = userCredential.user;
+
+      if (firebaseUser != null) {
+        currentFirebaseUser = firebaseUser;
+
+        // Check if the widget is still mounted before using context
+        if (!mounted) return;
+
+        Navigator.pop(context); // Close the dialog
+        _showToast("Đăng Nhập Thành Công");
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+      } else {
+        if (!mounted) return;
+
+        Navigator.pop(context); // Close the dialog
+        _showToast("Đã Xảy Ra Lỗi Khi Đăng Nhập.");
+      }
+    } catch (error) {
+      if (!mounted) return;
+
+      Navigator.pop(context); // Close the dialog
+      _showToast("Lỗi: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 40),
               _buildTextField(
-                controller: emailTextEditingController,
+                controller: _emailController,
                 label: 'Email',
                 hint: 'Nhập địa chỉ email',
                 icon: Icons.email,
@@ -44,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               _buildTextField(
-                controller: passwordTextEditingController,
+                controller: _passwordController,
                 label: 'Mật Khẩu',
                 hint: 'Nhập mật khẩu',
                 icon: Icons.lock,
@@ -52,9 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement login logic
-                },
+                onPressed: _validateForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -89,6 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // Reusable text field builder
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,

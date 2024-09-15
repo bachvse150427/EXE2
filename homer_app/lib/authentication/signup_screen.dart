@@ -84,6 +84,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
         _showToast("Tài khoản tạo thành công!");
 
+        // Check if the widget is still mounted before using context
+        if (!mounted) return;
+
         // Navigate to the Personal Info Screen
         Navigator.pushReplacement(
           context,
@@ -93,10 +96,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _showToast("Tài khoản tạo thất bại.");
       }
     } on FirebaseAuthException catch (e) {
-      Navigator.pop(context); // Close progress dialog
+      // Close progress dialog
+      if (!mounted) return;
+      Navigator.pop(context);
       _showToast("Lỗi: ${e.message}");
     } catch (e) {
-      Navigator.pop(context); // Close progress dialog
+      // Close progress dialog
+      if (!mounted) return;
+      Navigator.pop(context);
       _showToast("Lỗi không xác định: ${e.toString()}");
     }
   }
