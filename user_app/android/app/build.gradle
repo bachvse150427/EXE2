@@ -1,0 +1,54 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services'
+
+}
+
+android {
+    namespace = "com.example.homer_app"
+    compileSdkVersion 34 // Replace with the actual version you need
+
+    ndkVersion = "21.4.7075529" // Specify the NDK version explicitly
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    defaultConfig {
+        applicationId = "com.alanhnb.homerusersapp"
+        minSdkVersion 23 // Replace with the minimum SDK version needed
+        //noinspection OldTargetApi
+        targetSdkVersion 33 // Replace with the actual target SDK version
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-auth")
+}
+apply plugin: 'com.google.gms.google-services'
