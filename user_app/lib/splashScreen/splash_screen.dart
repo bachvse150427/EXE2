@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:homer_app/authentication/login_screen.dart';
-import 'package:homer_app/global/global.dart';
-import 'package:homer_app/mainScreens/main_screen.dart';
+import 'package:user_app/authentication/login_screen.dart';
+import 'package:user_app/global/global.dart';
+import 'package:user_app/mainScreens/main_screen.dart';
 
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({super.key});
@@ -40,7 +40,7 @@ class _MySplashScreenState extends State<MySplashScreen>
         currentFirebaseUser = firebaseAuthAuth.currentUser;
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
+          MaterialPageRoute(builder: (context) =>  const MainScreen()),
         );
       } else {
         Navigator.pushReplacement(
@@ -75,7 +75,7 @@ class _MySplashScreenState extends State<MySplashScreen>
               FadeTransition(
                 opacity: _animation,
                 child: Image.asset(
-                  'images/logo1.png',
+                  'images/logo.png',
                   width: 200,
                   height: 200,
                 ),
@@ -84,7 +84,7 @@ class _MySplashScreenState extends State<MySplashScreen>
               FadeTransition(
                 opacity: _animation,
                 child: const Text(
-                  'Homer',
+                  'Homer',// Name of App........................................................
                   style: TextStyle(
                     fontSize: 40,
                     color: Colors.white,

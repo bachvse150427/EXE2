@@ -7,14 +7,14 @@ import 'package:firebase_database/firebase_database.dart' show DatabaseReference
 import "package:fluttertoast/fluttertoast.dart" show Fluttertoast;
 
 
-class PerInfoScreen extends StatefulWidget {
-  const PerInfoScreen({super.key});
+class MehInfoScreen extends StatefulWidget {
+  const MehInfoScreen({super.key});
 
   @override
-  State<PerInfoScreen> createState() => _PerInfoScreenState();
+  State<MehInfoScreen> createState() => _MehInfoScreenState();
 }
 
-class _PerInfoScreenState extends State<PerInfoScreen> {
+class _MehInfoScreenState extends State<MehInfoScreen> {
   TextEditingController informationsTextEditingController = TextEditingController();// Service types
   File? _image; // Holds the image file
 
@@ -33,8 +33,8 @@ class _PerInfoScreenState extends State<PerInfoScreen> {
   // Function to save personal info
   savePerInfo() {
     Map messyHouseInfoMap = {
-      "meH_info": informationsTextEditingController.text.trim(),
-      "meH_avatar": _image!.path,  // Store the image path
+      "meh_info": informationsTextEditingController.text.trim(),
+      "meh_avatar": _image!.path,  // Store the image path
     };
 
 
@@ -75,7 +75,7 @@ class _PerInfoScreenState extends State<PerInfoScreen> {
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: 'Giới Thiệu Thông Tin',
-                hintText: 'Giới Thiệu Về Ngôi Nhà Của Bạn',
+                hintText: 'Giới Thiệu Về Bạn',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

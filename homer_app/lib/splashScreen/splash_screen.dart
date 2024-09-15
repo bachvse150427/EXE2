@@ -84,7 +84,7 @@ class _MySplashScreenState extends State<MySplashScreen>
               FadeTransition(
                 opacity: _animation,
                 child: const Text(
-                  'Homer',
+                  'Homer-Housekeeper',
                   style: TextStyle(
                     fontSize: 40,
                     color: Colors.white,

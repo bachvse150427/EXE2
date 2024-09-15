@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:homer_app/authentication/signup_screen.dart';
-import 'package:homer_app/global/global.dart';
-import 'package:homer_app/splashScreen/splash_screen.dart';
-import 'package:homer_app/widgets/progress_dialog.dart';
+import 'package:user_app/authentication/signup_screen.dart';
+import 'package:user_app/global/global.dart';
+import 'package:user_app/splashScreen/splash_screen.dart';
+import 'package:user_app/widgets/progress_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 40),
-              Image.asset('images/logo1.png', height: 120),
+              Image.asset('images/logo.png', height: 120),
               const SizedBox(height: 30),
               const Text(
                 'Đăng Nhập Đối Tác Homer',

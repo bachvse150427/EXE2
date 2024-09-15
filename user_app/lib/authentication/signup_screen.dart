@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:homer_app/authentication/per_info_screen.dart';
-import 'package:homer_app/global/global.dart';
-import 'package:homer_app/widgets/progress_dialog.dart';
+import 'package:user_app/authentication/meh_info_screen.dart';
+import 'package:user_app/global/global.dart';
+import 'package:user_app/widgets/progress_dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -18,7 +18,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   // Validate form fields
@@ -29,12 +28,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _showToast("Không bỏ qua email.");
     } else if (_phoneController.text.isEmpty) {
       _showToast("Không bỏ qua số điện thoại.");
-    } else if (_idController.text.isEmpty) {
-      _showToast("Không bỏ qua số CCCD/CMND.");
     } else if (_passwordController.text.length < 6) {
       _showToast("Mật khẩu phải nhiều hơn 6 ký tự.");
     } else {
-      _saveHousekeeperInfo();
+      _saveMessyHouseInfo();
     }
   }
 
@@ -43,8 +40,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Fluttertoast.showToast(msg: message);
   }
 
-  // Save housekeeper info to Firebase
-  Future<void> _saveHousekeeperInfo() async {
+  // Save Messy House info to Firebase
+  Future<void> _saveMessyHouseInfo() async {
     // Show progress dialog
     showDialog(
       context: context,
@@ -66,18 +63,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (firebaseUser != null) {
         // Prepare housekeeper data
-        Map<String, String> housekeeperData = {
+        Map<String, String> messyHouseData = {
           "id": firebaseUser.uid,
           "name": _nameController.text.trim(),
           "email": _emailController.text.trim(),
           "phone": _phoneController.text.trim(),
-          "idCard": _idController.text.trim(),
         };
 
         // Save housekeeper data to Firebase Realtime Database
-        DatabaseReference housekeeperRef =
-        FirebaseDatabase.instance.ref().child("housekeeper");
-        await housekeeperRef.child(firebaseUser.uid).set(housekeeperData);
+        DatabaseReference messyHouseRef =
+        FirebaseDatabase.instance.ref().child("messyHouse");
+        await messyHouseRef.child(firebaseUser.uid).set(messyHouseData);
 
         // Store the current Firebase user globally
         currentFirebaseUser = firebaseUser;
@@ -90,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         // Navigate to the Personal Info Screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const PerInfoScreen()),
+          MaterialPageRoute(builder: (context) => const MehInfoScreen()),
         );
       } else {
         _showToast("Tài khoản tạo thất bại.");
@@ -119,10 +115,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 20),
-              Image.asset('images/logo1.png', height: 120),
+              Image.asset('images/logo.png', height: 120),
               const SizedBox(height: 20),
               const Text(
-                'Đăng ký đối tác Homer',
+                'Đăng ký Là Khách Hàng Của Homer',
                 style: TextStyle(
                   fontSize: 28,
                   color: Colors.black87,
@@ -133,15 +129,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 30),
               _buildTextField(
                 controller: _nameController,
-                label: 'Tên Đối Tác',
-                hint: 'Nhập tên của bạn',
+                label: 'Tên Của Khách Hàng',
+                hint: 'Nhập Tên Của Bạn',
                 icon: Icons.person,
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: _emailController,
                 label: 'Email',
-                hint: 'Nhập địa chỉ email',
+                hint: 'Nhập Địa Chỉ Email',
                 icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -149,23 +145,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               _buildTextField(
                 controller: _phoneController,
                 label: 'Số Điện Thoại',
-                hint: 'Nhập số điện thoại',
+                hint: 'Nhập Số Điện Thoại',
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               _buildTextField(
-                controller: _idController,
-                label: 'Số CCCD/CMND',
-                hint: 'Nhập số căn cước hoặc CMND',
-                icon: Icons.credit_card,
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
                 controller: _passwordController,
                 label: 'Mật Khẩu',
-                hint: 'Nhập mật khẩu',
+                hint: 'Nhập Mật Khẩu',
                 icon: Icons.lock,
                 obscureText: true,
               ),
