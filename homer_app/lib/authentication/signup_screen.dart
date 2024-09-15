@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:homer_app/authentication/per_info_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:homer_app/authentication/per_info_screen.dart';
+import 'package:homer_app/global/global.dart';
+import 'package:homer_app/widgets/progress_dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -10,218 +14,210 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  TextEditingController nameTextEditingController = TextEditingController();
-  TextEditingController phoneTextEditingController = TextEditingController();
-  TextEditingController idTextEditingController = TextEditingController();
-  TextEditingController passwordTextEditingController = TextEditingController();
+  // Text editing controllers for form fields
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  validateFrom(){
-    if(nameTextEditingController.text.length<3) {
-      Fluttertoast.showToast(msg: 'Tên Của Đối Tác Phải Nhiều Hơn 3 Ký Tự' );
+  // Validate form fields
+  void _validateForm() {
+    if (_nameController.text.length < 3) {
+      _showToast("Tên của đối tác phải nhiều hơn 3 ký tự.");
+    } else if (_emailController.text.isEmpty) {
+      _showToast("Không bỏ qua email.");
+    } else if (_phoneController.text.isEmpty) {
+      _showToast("Không bỏ qua số điện thoại.");
+    } else if (_idController.text.isEmpty) {
+      _showToast("Không bỏ qua số CCCD/CMND.");
+    } else if (_passwordController.text.length < 6) {
+      _showToast("Mật khẩu phải nhiều hơn 6 ký tự.");
+    } else {
+      _saveHousekeeperInfo();
     }
-    else if(phoneTextEditingController.text.isEmpty)
-    {
-      Fluttertoast.showToast(msg: "Không Bỏ qua Số Điện Thoại.");
-    }
-    else if(idTextEditingController.text.isEmpty)
-    {
-      Fluttertoast.showToast(msg: "Không Bỏ Số Căn Cước/Căn Cước Công Dân/Chứng Minh Nhân Dân.");
-    }
-    else if(passwordTextEditingController.text.length < 6)
-    {
-      Fluttertoast.showToast(msg: "Mật Khẩu Phải Nhiều Hơn 6 Ký Tự.");
-    }
-    // else
-    // {
-    //   saveDriverInfoNow();
-    // }
   }
-<<<<<<< HEAD
 
-  saveHouserKeeperInfoNow() async {
+  // Display toast message
+  void _showToast(String message) {
+    Fluttertoast.showToast(msg: message);
+  }
+
+  // Save housekeeper info to Firebase
+  Future<void> _saveHousekeeperInfo() async {
+    // Show progress dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext c) {
-        return ProgressDialog(message: "Đang Xữ Lý, Vui Lòng Chờ...");
+      builder: (BuildContext context) {
+        return const ProgressDialog(message: "Đang xử lý, vui lòng chờ...");
       },
     );
 
     try {
-      final User? firebaseUser = (await firebaseAuthAuth.createUserWithEmailAndPassword(
-        email: emailTextEditingController.text.trim(),
-        password: passwordTextEditingController.text.trim(),
-      )).user;
+      // Register user with Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      User? firebaseUser = userCredential.user;
 
       if (firebaseUser != null) {
-        Map housekeeperMap = {
+        // Prepare housekeeper data
+        Map<String, String> housekeeperData = {
           "id": firebaseUser.uid,
-          "name": nameTextEditingController.text.trim(),
-          "email": emailTextEditingController.text.trim(),
-          "phone": phoneTextEditingController.text.trim(),
-          "idCard": idTextEditingController.text.trim(),
+          "name": _nameController.text.trim(),
+          "email": _emailController.text.trim(),
+          "phone": _phoneController.text.trim(),
+          "idCard": _idController.text.trim(),
         };
 
-        DatabaseReference housekeeperRef = FirebaseDatabase.instance.ref().child("Housekeeper");
-        housekeeperRef.child(firebaseUser.uid).set(housekeeperMap);
+        // Save housekeeper data to Firebase Realtime Database
+        DatabaseReference housekeeperRef =
+        FirebaseDatabase.instance.ref().child("housekeeper");
+        await housekeeperRef.child(firebaseUser.uid).set(housekeeperData);
 
+        // Store the current Firebase user globally
         currentFirebaseUser = firebaseUser;
-        Fluttertoast.showToast(msg: "Tài khoản Tạo Thành Công");
 
-        Navigator.push(context, MaterialPageRoute(builder: (c) => const PerInfoScreen()));
+        _showToast("Tài khoản tạo thành công!");
+
+        // Navigate to the Personal Info Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PerInfoScreen()),
+        );
       } else {
-        Navigator.pop(context);
-        Fluttertoast.showToast(msg: "Tài Khoản Tạo Thất Bại.");
+        _showToast("Tài khoản tạo thất bại.");
       }
-    } catch (error) {
-      Navigator.pop(context);
-      Fluttertoast.showToast(msg: "Lỗi: $error");
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context); // Close progress dialog
+      _showToast("Lỗi: ${e.message}");
+    } catch (e) {
+      Navigator.pop(context); // Close progress dialog
+      _showToast("Lỗi không xác định: ${e.toString()}");
     }
   }
-=======
->>>>>>> parent of bdb1abb (1. fix fontend, and push regit data to firebase but not had reeltime database reup)
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
+      backgroundColor: Colors.blue[100],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Image.asset('images/logo1.png'),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 20),
+              Image.asset('images/logo1.png', height: 120),
+              const SizedBox(height: 20),
               const Text(
-                'Đăng ký một đối tác của Homer',
+                'Đăng ký đối tác Homer',
                 style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.black,
+                  fontSize: 28,
+                  color: Colors.black87,
                   fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
               ),
-              TextField(
-                controller: nameTextEditingController,
-                style: const TextStyle(color: Colors.black),
-                decoration: const InputDecoration(
-                  labelText: 'Tên Đối Tác',
-                  hintText: 'Tên Đối Tác',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  hintStyle: TextStyle(
-                    color: Colors.lightBlueAccent,
-                    fontSize: 10,
-                  ),
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                  ),
-                ),
+              const SizedBox(height: 30),
+              _buildTextField(
+                controller: _nameController,
+                label: 'Tên Đối Tác',
+                hint: 'Nhập tên của bạn',
+                icon: Icons.person,
               ),
-              TextField(
-                controller: phoneTextEditingController,
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _emailController,
+                label: 'Email',
+                hint: 'Nhập địa chỉ email',
+                icon: Icons.email,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _phoneController,
+                label: 'Số Điện Thoại',
+                hint: 'Nhập số điện thoại',
+                icon: Icons.phone,
                 keyboardType: TextInputType.phone,
-                style: const TextStyle(color: Colors.black),
-                decoration: const InputDecoration(
-                  labelText: 'Số Điện Thoại',
-                  hintText: 'Số Điện Thoại',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  hintStyle: TextStyle(
-                    color: Colors.lightBlueAccent,
-                    fontSize: 10,
-                  ),
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                  ),
-                ),
               ),
-              TextField(
-                controller: idTextEditingController,
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _idController,
+                label: 'Số CCCD/CMND',
+                hint: 'Nhập số căn cước hoặc CMND',
+                icon: Icons.credit_card,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.black),
-                decoration: const InputDecoration(
-                  labelText: 'Căn Cước/ Căn Cước Công Dân/ Chứng Minh Nhân Dân',
-                  hintText: 'Căn Cước/ Căn Cước Công Dân/ Chứng Minh Nhân Dân',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  hintStyle: TextStyle(
-                    color: Colors.lightBlueAccent,
-                    fontSize: 10,
-                  ),
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                  ),
-                ),
               ),
-              TextField(
-                controller: passwordTextEditingController,
-                keyboardType: TextInputType.visiblePassword,
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _passwordController,
+                label: 'Mật Khẩu',
+                hint: 'Nhập mật khẩu',
+                icon: Icons.lock,
                 obscureText: true,
-                style: const TextStyle(color: Colors.black),
-                decoration: const InputDecoration(
-                  labelText: 'Mật Khẩu',
-                  hintText: 'Mật Khẩu',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  hintStyle: TextStyle(
-                    color: Colors.lightBlueAccent,
-                    fontSize: 10,
-                  ),
-                  labelStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                  ),
-                ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {
-                  // Navigator.push(context,
-                  //     MaterialPageRoute(builder: (c) => const PerInfoScreen()));
-                  validateFrom();
-                },
+                onPressed: _validateForm,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightGreenAccent,
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: const Text(
                   "Tạo Tài Khoản",
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Reusable text field builder
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      style: const TextStyle(color: Colors.black87),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, color: Colors.blue[700]),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue[300]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue[700]!, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding:
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
