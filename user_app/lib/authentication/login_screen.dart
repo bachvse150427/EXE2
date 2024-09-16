@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (_passwordController.text.isEmpty) {
       _showToast("Mật Khẩu Đăng Nhập Là Cần Thiết.");
     } else {
-      _loginHousekeeper();
+      _loginUser();
     }
   }
 
@@ -34,8 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
     Fluttertoast.showToast(msg: message);
   }
 
-  // Login housekeeper
-  Future<void> _loginHousekeeper() async {
+  // Login user
+  Future<void> _loginUser() async {
+    if (!mounted) return;
+
     // Show progress dialog
     showDialog(
       context: context,
@@ -55,27 +58,52 @@ class _LoginScreenState extends State<LoginScreen> {
       final User? firebaseUser = userCredential.user;
 
       if (firebaseUser != null) {
-        currentFirebaseUser = firebaseUser;
+        DatabaseReference messyHouseRef = FirebaseDatabase.instance.ref().child("messyHouse");
+        final snapshot = await messyHouseRef.child(firebaseUser.uid).get();
 
-        // Check if the widget is still mounted before using context
         if (!mounted) return;
-
         Navigator.pop(context); // Close the dialog
-        _showToast("Đăng Nhập Thành Công");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+
+        if (snapshot.exists) {
+          currentFirebaseUser = firebaseUser;
+          _showToast("Đăng Nhập Thành Công");
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+        } else {
+          _showToast("Tài khoản không có quyền truy cập. Vui lòng liên hệ quản trị viên.");
+          await firebaseAuthAuth.signOut();
+        }
       } else {
         if (!mounted) return;
-
         Navigator.pop(context); // Close the dialog
         _showToast("Đã Xảy Ra Lỗi Khi Đăng Nhập.");
       }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close the dialog
+      switch (e.code) {
+        case 'user-not-found':
+          _showToast("Không tìm thấy tài khoản với email này.");
+          break;
+        case 'wrong-password':
+          _showToast("Sai mật khẩu. Vui lòng thử lại.");
+          break;
+        case 'invalid-email':
+          _showToast("Địa chỉ email không hợp lệ.");
+          break;
+        case 'user-disabled':
+          _showToast("Tài khoản này đã bị vô hiệu hóa.");
+          break;
+        default:
+          _showToast("Lỗi đăng nhập: ${e.message}");
+      }
     } catch (error) {
       if (!mounted) return;
-
       Navigator.pop(context); // Close the dialog
-      _showToast("Lỗi: $error");
+      _showToast("Lỗi không xác định: $error");
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

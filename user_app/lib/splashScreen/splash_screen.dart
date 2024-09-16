@@ -40,7 +40,7 @@ class _MySplashScreenState extends State<MySplashScreen>
         currentFirebaseUser = firebaseAuthAuth.currentUser;
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) =>  MainScreen()),
+          MaterialPageRoute(builder: (context) =>  const MainScreen()),
         );
       } else {
         Navigator.pushReplacement(
