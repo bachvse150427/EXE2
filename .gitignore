@@ -35,6 +35,9 @@ google-services.json
 google-services.json
 GoogleService-Info.plist
 map_key.dart
-homer_app/android/app/src/main/AndroidManifest.xml
-homer_app/ios/Runner/AppDelegate.swift
 
+/homer_app/ios/Runner/AppDelegate.swift
+/homer_app/android/app/build.gradle
+
+build.gradle
+/homer_app/android/app/src/main/AndroidManifest.xml
