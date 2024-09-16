@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:user_app/authentication/meh_info_screen.dart';
-import 'package:user_app/global/global.dart';
-import 'package:user_app/widgets/progress_dialog.dart';
+
+import '../global/global.dart';
+import '../widgets/progress_dialog.dart';
+import 'meh_info_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

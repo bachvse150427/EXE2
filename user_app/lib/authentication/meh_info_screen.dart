@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart' show ImagePicker, ImageSource, XFile;
 import 'dart:io';
-import 'package:user_app/global/global.dart';
-import 'package:user_app/splashScreen/splash_screen.dart';
 import 'package:firebase_database/firebase_database.dart' show DatabaseReference, FirebaseDatabase;
 import "package:fluttertoast/fluttertoast.dart" show Fluttertoast;
+import 'package:image_picker/image_picker.dart';
+
+import '../global/global.dart';
+import '../splashScreen/splash_screen.dart';
 
 
 class MehInfoScreen extends StatefulWidget {

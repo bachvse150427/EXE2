@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../assistants/assistant_methods.dart';
+import '../global/global.dart';
+import '../widgets/my_drawer.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -22,8 +26,40 @@ class _MainScreenState extends State<MainScreen> {
   Position? currentPosition;
   var geoLocator = Geolocator();
 
-  void locatePosition() async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  final GlobalKey<ScaffoldState> sKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    getUserData();
+  }
+
+  void getUserData() async {
+    await AssistantMethods.readCurrentOnlineUserInfo();
+    setState(() {});
+  }
+
+  Future<void> locatePosition() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Show dialog for denied permission
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Show dialog for permanently denied permission
+      return;
+    }
+
+    LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high,
+    );
+
+    Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
     currentPosition = position;
 
     LatLng latLngPosition = LatLng(position.latitude, position.longitude);
@@ -32,186 +68,47 @@ class _MainScreenState extends State<MainScreen> {
     newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
-  static const String _mapStyle = '''
-    [
-      {
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#242f3e"
-          }
-        ]
-      },
-      {
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#746855"
-          }
-        ]
-      },
-      {
-        "elementType": "labels.text.stroke",
-        "stylers": [
-          {
-            "color": "#242f3e"
-          }
-        ]
-      },
-      {
-        "featureType": "administrative.locality",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#d59563"
-          }
-        ]
-      },
-      {
-        "featureType": "poi",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#d59563"
-          }
-        ]
-      },
-      {
-        "featureType": "poi.park",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#263c3f"
-          }
-        ]
-      },
-      {
-        "featureType": "poi.park",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#6b9a76"
-          }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#38414e"
-          }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "geometry.stroke",
-        "stylers": [
-          {
-            "color": "#212a37"
-          }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#9ca5b3"
-          }
-        ]
-      },
-      {
-        "featureType": "road.highway",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#746855"
-          }
-        ]
-      },
-      {
-        "featureType": "road.highway",
-        "elementType": "geometry.stroke",
-        "stylers": [
-          {
-            "color": "#1f2835"
-          }
-        ]
-      },
-      {
-        "featureType": "road.highway",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#f3d19c"
-          }
-        ]
-      },
-      {
-        "featureType": "transit",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#2f3948"
-          }
-        ]
-      },
-      {
-        "featureType": "transit.station",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#d59563"
-          }
-        ]
-      },
-      {
-        "featureType": "water",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#17263c"
-          }
-        ]
-      },
-      {
-        "featureType": "water",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#515c6d"
-          }
-        ]
-      },
-      {
-        "featureType": "water",
-        "elementType": "labels.text.stroke",
-        "stylers": [
-          {
-            "color": "#17263c"
-          }
-        ]
-      }
-    ]
-  ''';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        mapType: MapType.normal,
-        myLocationButtonEnabled: true,
-        myLocationEnabled: true,
-        zoomGesturesEnabled: true,
-        zoomControlsEnabled: true,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controllerGoogleMap.complete(controller);
-          newGoogleMapController = controller;
-          locatePosition();
-        },
-        style: _mapStyle,
+      key: sKey,
+      drawer: MyDrawer(
+        name: userModelCurrentInfo?.name,
+        email: userModelCurrentInfo?.email,
+      ),
+      body: Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            myLocationButtonEnabled: true,
+            myLocationEnabled: true,
+            zoomGesturesEnabled: true,
+            zoomControlsEnabled: true,
+            initialCameraPosition: _kGooglePlex,
+            onMapCreated: (GoogleMapController controller) {
+              _controllerGoogleMap.complete(controller);
+              newGoogleMapController = controller;
+              locatePosition();
+            },
+          ),
+          //custom hamburger button for drawer
+          Positioned(
+            top: 30,
+            left: 20,
+            child: GestureDetector(
+              onTap: () {
+                sKey.currentState!.openDrawer();
+              },
+              child: const CircleAvatar(
+                backgroundColor: Colors.grey,
+                child: Icon(
+                  Icons.menu,
+                  color: Colors.black54,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
