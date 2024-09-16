@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:homer_app/authentication/signup_screen.dart';
 import 'package:homer_app/global/global.dart';
 import 'package:homer_app/splashScreen/splash_screen.dart';
@@ -14,11 +15,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Text editing controllers for form fields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Validate form fields
   void _validateForm() {
     if (!_emailController.text.contains("@")) {
       _showToast("Địa chỉ Email không chính xác.");
@@ -29,14 +29,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Display toast message
   void _showToast(String message) {
     Fluttertoast.showToast(msg: message);
   }
 
-  // Login housekeeper
   Future<void> _loginHousekeeper() async {
-    // Show progress dialog
+    if (!mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -46,8 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     try {
-      final UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -55,26 +53,53 @@ class _LoginScreenState extends State<LoginScreen> {
       final User? firebaseUser = userCredential.user;
 
       if (firebaseUser != null) {
-        currentFirebaseUser = firebaseUser;
+        DatabaseReference housekeeperRef = FirebaseDatabase.instance.ref().child("housekeeper");
+        final snapshot = await housekeeperRef.child(firebaseUser.uid).get();
 
-        // Check if the widget is still mounted before using context
         if (!mounted) return;
-
         Navigator.pop(context); // Close the dialog
-        _showToast("Đăng Nhập Thành Công");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+
+        if (snapshot.exists) {
+          currentFirebaseUser = firebaseUser;
+          _showToast("Đăng Nhập Thành Công");
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+        } else {
+          _showToast("Tài khoản không có quyền truy cập. Vui lòng liên hệ quản trị viên.");
+          await _auth.signOut();
+        }
       } else {
         if (!mounted) return;
-
         Navigator.pop(context); // Close the dialog
         _showToast("Đã Xảy Ra Lỗi Khi Đăng Nhập.");
       }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close the dialog
+      switch (e.code) {
+        case 'user-not-found':
+          _showToast("Không tìm thấy tài khoản với email này.");
+          break;
+        case 'wrong-password':
+          _showToast("Sai mật khẩu. Vui lòng thử lại.");
+          break;
+        case 'invalid-email':
+          _showToast("Địa chỉ email không hợp lệ.");
+          break;
+        case 'user-disabled':
+          _showToast("Tài khoản này đã bị vô hiệu hóa.");
+          break;
+        default:
+          _showToast("Lỗi đăng nhập: ${e.message}");
+      }
     } catch (error) {
       if (!mounted) return;
-
       Navigator.pop(context); // Close the dialog
-      _showToast("Lỗi: $error");
+      _showToast("Lỗi không xác định: $error");
     }
+  }
+
+  void _navigateToSignUp() {
+    Navigator.push(context, MaterialPageRoute(builder: (c) => const SignUpScreen()));
   }
 
   @override
@@ -133,9 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               TextButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (c) => const SignUpScreen()));
-                },
+                onPressed: _navigateToSignUp,
                 child: const Text(
                   'Chưa có tài khoản? Đăng ký tại đây',
                   style: TextStyle(
@@ -152,7 +175,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Reusable text field builder
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
