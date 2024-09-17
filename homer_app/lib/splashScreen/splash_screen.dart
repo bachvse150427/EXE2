@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:homer_app/authentication/login_screen.dart';
-import 'package:homer_app/global/global.dart';
-import 'package:homer_app/mainScreens/main_screen.dart';
+
+import '../authentication/login_screen.dart';
+import '../global/global.dart';
+import '../mainScreens/main_screen.dart';
+
 
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({super.key});

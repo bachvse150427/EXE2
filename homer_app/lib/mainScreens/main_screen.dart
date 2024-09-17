@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:homer_app/tabPages/earning_tab.dart';
-import 'package:homer_app/tabPages/home_tab.dart';
-import 'package:homer_app/tabPages/profile_tab.dart';
-import 'package:homer_app/tabPages/ratings_page.dart';
+
+import '../tabPages/earning_tab.dart';
+import '../tabPages/home_tab.dart';
+import '../tabPages/profile_tab.dart';
+import '../tabPages/ratings_page.dart';
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

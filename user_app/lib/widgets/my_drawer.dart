@@ -1,125 +1,125 @@
+
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../global/global.dart';
 import '../splashScreen/splash_screen.dart';
 
-class MyDrawer extends StatefulWidget {
+class MyDrawer extends StatelessWidget {
   final String? name;
   final String? email;
+  final String? avatar;
 
-  const MyDrawer({super.key, this.name, this.email});
-
-  @override
-  _MyDrawerState createState() => _MyDrawerState();
-}
-
-class _MyDrawerState extends State<MyDrawer> {
-  @override
-  void initState() {
-    super.initState();
-    // print("MyDrawer initialized with name: ${widget.name}, email: ${widget.email}");
-  }
+  const MyDrawer({
+    super.key,
+    this.name,
+    this.email,
+    this.avatar,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: Colors.black87, // Set a dark background for the drawer
+        color: Colors.black87,
         child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            //drawer header
-            SizedBox(
-              height: 165,
-              child: DrawerHeader(
-                decoration: const BoxDecoration(color: Colors.black),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.person,
-                      size: 80,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.name ?? "Tên Không Tồn Tại",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            widget.email ?? "Email Không Tồn tại",
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                name ?? "User Name",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-            ),
-
-            const SizedBox(height: 12.0),
-
-            //drawer body
-            ListTile(
-              leading: const Icon(Icons.history, color: Colors.white),
-              title: const Text(
-                "Lịch Sử",
-                style: TextStyle(color: Colors.white),
+              accountEmail: Text(
+                email ?? "user@example.com",
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white70,
+                ),
               ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.grey,
+                backgroundImage: _getAvatarProvider(),
+                child: _getAvatarProvider() == null
+                    ? const Icon(
+                  Icons.person,
+                  size: 50,
+                  color: Colors.white,
+                )
+                    : null,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.blueGrey,
+              ),
+            ),
+            _buildDrawerItem(
+              icon: Icons.history,
+              title: "History",
               onTap: () {
-                // Handle History tap
+                // TODO: Implement history functionality
               },
             ),
-
-            ListTile(
-              leading: const Icon(Icons.person, color: Colors.white),
-              title: const Text(
-                "Thông tin Cá Nhân",
-                style: TextStyle(color: Colors.white),
-              ),
+            _buildDrawerItem(
+              icon: Icons.person,
+              title: "Visit Profile",
               onTap: () {
-                // Handle Visit Profile tap
+                // TODO: Implement visit profile functionality
               },
             ),
-
-            ListTile(
-              leading: const Icon(Icons.info, color: Colors.white),
-              title: const Text(
-                "Thông Tin",
-                style: TextStyle(color: Colors.white),
-              ),
+            _buildDrawerItem(
+              icon: Icons.info,
+              title: "About",
               onTap: () {
-                // Handle About tap
+                // TODO: Implement about functionality
               },
             ),
-
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.white),
-              title: const Text(
-                "Đăng Xuất",
-                style: TextStyle(color: Colors.white),
-              ),
+            const Divider(color: Colors.white24),
+            _buildDrawerItem(
+              icon: Icons.logout,
+              title: "Sign Out",
               onTap: () {
-                firebaseAuthAuth.signOut();
-                Navigator.push(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+                fAuth.signOut();
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
               },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  ImageProvider? _getAvatarProvider() {
+    if (avatar == null || avatar!.isEmpty) return null;
+    if (avatar!.startsWith('http://') || avatar!.startsWith('https://')) {
+      return NetworkImage(avatar!);
+    } else {
+      try {
+        return FileImage(File(Uri.parse(avatar!).toFilePath()));
+      } catch (e) {
+        // if (kDebugMode) {
+        //   print('Error loading avatar: $e');
+        // }
+        return null;
+      }
+    }
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white70),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white70, fontSize: 16),
+      ),
+      onTap: onTap,
+      hoverColor: Colors.white10,
     );
   }
 }

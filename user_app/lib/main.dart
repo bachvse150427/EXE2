@@ -1,44 +1,51 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart' show Firebase;
-import '../splashScreen/splash_screen.dart';
+import 'package:user_app/splashScreen/splash_screen.dart';
 
-void main() async {
+
+void main() async
+{
   WidgetsFlutterBinding.ensureInitialized();
-
-
   await Firebase.initializeApp();
 
-  runApp(MyApp(
-    child: MaterialApp(
-      title: 'User App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+  runApp(
+    MyApp(
+      child: MaterialApp(
+        title: 'Drivers App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const MySplashScreen(),
+        debugShowCheckedModeBanner: false,
       ),
-      home: const MySplashScreen(),
-      debugShowCheckedModeBanner: false,
     ),
-  ));
+  );
 }
 
-class MyApp extends StatefulWidget {
+
+
+class MyApp extends StatefulWidget
+{
   final Widget? child;
 
   const MyApp({super.key, this.child});
 
-  // Function to restart the app
-  static void restartApp(BuildContext context) {
+  static void restartApp(BuildContext context)
+  {
     context.findAncestorStateOfType<_MyAppState>()!.restartApp();
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp>
+{
   Key key = UniqueKey();
 
-  // Function to restart the app by generating a new key
-  void restartApp() {
+  void restartApp()
+  {
     setState(() {
       key = UniqueKey();
     });
@@ -52,3 +59,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
+
+

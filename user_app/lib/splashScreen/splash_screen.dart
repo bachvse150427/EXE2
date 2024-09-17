@@ -1,105 +1,56 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../assistants/assistant_methods.dart';
 import '../authentication/login_screen.dart';
 import '../global/global.dart';
 import '../mainScreens/main_screen.dart';
-
 
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MySplashScreenState createState() => _MySplashScreenState();
 }
 
-class _MySplashScreenState extends State<MySplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Initialize animation controller
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
-
-    // Define the animation
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _controller.forward(); // Start the animation
-
-    // Start the timer
-    startTimer();
-  }
-
+class _MySplashScreenState extends State<MySplashScreen> {
   startTimer() {
+    fAuth.currentUser != null ? AssistantMethods.readCurrentOnlineUserInfo() : null;
+
     Timer(const Duration(seconds: 3), () async {
-      if (firebaseAuthAuth.currentUser != null) {
-        currentFirebaseUser = firebaseAuthAuth.currentUser;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  const MainScreen()),
-        );
+      if (fAuth.currentUser != null) {
+        currentFirebaseUser = fAuth.currentUser;
+        Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (c) => const LoginScreen()));
       }
     });
   }
 
   @override
-  void dispose() {
-    _controller.dispose(); // Dispose the controller when done
-    super.dispose();
+  void initState() {
+    super.initState();
+    startTimer();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue[300]!, Colors.blue[700]!],
-          ),
-        ),
+    return Material(
+      child: Container(
+        color: Colors.black,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FadeTransition(
-                opacity: _animation,
-                child: Image.asset(
-                  'images/logo.png',
-                  width: 200,
-                  height: 200,
-                ),
-              ),
-              const SizedBox(height: 20),
-              FadeTransition(
-                opacity: _animation,
-                child: const Text(
-                  'Homer',// Name of App........................................................
-                  style: TextStyle(
-                    fontSize: 40,
+              Image.asset("images/logo.png"),
+              const SizedBox(height: 10,),
+              const Text(
+                "Uber & inDriver Clone App",
+                style: TextStyle(
+                    fontSize: 24,
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 5,
-                        color: Colors.black26,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
+                    fontWeight: FontWeight.bold
                 ),
               ),
             ],

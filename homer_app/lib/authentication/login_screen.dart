@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:homer_app/authentication/signup_screen.dart';
-import 'package:homer_app/global/global.dart';
-import 'package:homer_app/splashScreen/splash_screen.dart';
-import 'package:homer_app/widgets/progress_dialog.dart';
+import 'package:user_app/authentication/signup_screen.dart';
+
+import '../global/global.dart';
+import '../splashScreen/splash_screen.dart';
+import '../widgets/progress_dialog.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

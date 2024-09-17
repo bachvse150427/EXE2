@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-
+import '../authentication/per_info_screen.dart';
 import '../global/global.dart';
 import '../widgets/progress_dialog.dart';
-import 'meh_info_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -15,47 +14,43 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // Text editing controllers for form fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Validate form fields
   void _validateForm() {
     if (_nameController.text.length < 3) {
-      _showToast("Tên của đối tác phải nhiều hơn 3 ký tự.");
-    } else if (_emailController.text.isEmpty) {
-      _showToast("Không bỏ qua email.");
+      _showToast("Name must be at least 3 characters.");
+    } else if (_emailController.text.isEmpty || !_emailController.text.contains("@")) {
+      _showToast("Please enter a valid email address.");
     } else if (_phoneController.text.isEmpty) {
-      _showToast("Không bỏ qua số điện thoại.");
+      _showToast("Phone number is required.");
+    } else if (_idController.text.isEmpty) {
+      _showToast("ID number is required.");
     } else if (_passwordController.text.length < 6) {
-      _showToast("Mật khẩu phải nhiều hơn 6 ký tự.");
+      _showToast("Password must be at least 6 characters.");
     } else {
-      _saveMessyHouseInfo();
+      _saveUserInfo();
     }
   }
 
-  // Display toast message
   void _showToast(String message) {
     Fluttertoast.showToast(msg: message);
   }
 
-  // Save Messy House info to Firebase
-  Future<void> _saveMessyHouseInfo() async {
-    // Show progress dialog
+  Future<void> _saveUserInfo() async {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const ProgressDialog(message: "Đang xử lý, vui lòng chờ...");
+        return const ProgressDialog(message: "Processing, Please wait...");
       },
     );
 
     try {
-      // Register user with Firebase Authentication
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -63,45 +58,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
       User? firebaseUser = userCredential.user;
 
       if (firebaseUser != null) {
-        // Prepare housekeeper data
-        Map<String, String> messyHouseData = {
+        Map<String, String> userData = {
           "id": firebaseUser.uid,
           "name": _nameController.text.trim(),
           "email": _emailController.text.trim(),
           "phone": _phoneController.text.trim(),
+          "idNumber": _idController.text.trim(),
         };
 
-        // Save housekeeper data to Firebase Realtime Database
-        DatabaseReference messyHouseRef =
-        FirebaseDatabase.instance.ref().child("messyHouse");
-        await messyHouseRef.child(firebaseUser.uid).set(messyHouseData);
+        DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users");
+        await usersRef.child(firebaseUser.uid).set(userData);
 
-        // Store the current Firebase user globally
         currentFirebaseUser = firebaseUser;
+        _showToast("Account created successfully!");
 
-        _showToast("Tài khoản tạo thành công!");
-
-        // Check if the widget is still mounted before using context
         if (!mounted) return;
-
-        // Navigate to the Personal Info Screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MehInfoScreen()),
+          MaterialPageRoute(builder: (context) =>  const PerInfoScreen()),
         );
       } else {
-        _showToast("Tài khoản tạo thất bại.");
+        _showToast("Failed to create account.");
       }
     } on FirebaseAuthException catch (e) {
-      // Close progress dialog
       if (!mounted) return;
       Navigator.pop(context);
-      _showToast("Lỗi: ${e.message}");
+      _showToast("Error: ${e.message}");
     } catch (e) {
-      // Close progress dialog
       if (!mounted) return;
       Navigator.pop(context);
-      _showToast("Lỗi không xác định: ${e.toString()}");
+      _showToast("An unexpected error occurred: ${e.toString()}");
     }
   }
 
@@ -119,7 +105,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Image.asset('images/logo.png', height: 120),
               const SizedBox(height: 20),
               const Text(
-                'Đăng ký Là Khách Hàng Của Homer',
+                'Sign Up as a User',
                 style: TextStyle(
                   fontSize: 28,
                   color: Colors.black87,
@@ -130,31 +116,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 30),
               _buildTextField(
                 controller: _nameController,
-                label: 'Tên Của Khách Hàng',
-                hint: 'Nhập Tên Của Bạn',
+                label: 'Name',
+                hint: 'Enter your name',
                 icon: Icons.person,
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: _emailController,
                 label: 'Email',
-                hint: 'Nhập Địa Chỉ Email',
+                hint: 'Enter your email address',
                 icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: _phoneController,
-                label: 'Số Điện Thoại',
-                hint: 'Nhập Số Điện Thoại',
+                label: 'Phone Number',
+                hint: 'Enter your phone number',
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               _buildTextField(
+                controller: _idController,
+                label: 'ID Number',
+                hint: 'Enter your ID number',
+                icon: Icons.credit_card,
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
                 controller: _passwordController,
-                label: 'Mật Khẩu',
-                hint: 'Nhập Mật Khẩu',
+                label: 'Password',
+                hint: 'Enter your password',
                 icon: Icons.lock,
                 obscureText: true,
               ),
@@ -169,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 child: const Text(
-                  "Tạo Tài Khoản",
+                  "Create Account",
                   style: TextStyle(fontSize: 18),
                 ),
               ),
@@ -180,7 +174,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // Reusable text field builder
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -212,8 +205,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
