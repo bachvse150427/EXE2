@@ -66,8 +66,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           "idNumber": _idController.text.trim(),
         };
 
-        DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users");
-        await usersRef.child(firebaseUser.uid).set(userData);
+        DatabaseReference reference = FirebaseDatabase.instance.ref().child("users");
+        reference.child(firebaseUser.uid).set(userData);
 
         currentFirebaseUser = firebaseUser;
         _showToast("Account created successfully!");
