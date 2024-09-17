@@ -6,7 +6,7 @@ class MyDrawer extends StatefulWidget {
   final String? name;
   final String? email;
 
-  const MyDrawer({Key? key, this.name, this.email}) : super(key: key);
+  const MyDrawer({super.key, this.name, this.email});
 
   @override
   _MyDrawerState createState() => _MyDrawerState();
@@ -27,7 +27,7 @@ class _MyDrawerState extends State<MyDrawer> {
         child: ListView(
           children: [
             //drawer header
-            Container(
+            SizedBox(
               height: 165,
               child: DrawerHeader(
                 decoration: const BoxDecoration(color: Colors.black),

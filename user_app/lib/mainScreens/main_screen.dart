@@ -19,14 +19,18 @@ class _MainScreenState extends State<MainScreen> {
   GoogleMapController? newGoogleMapController;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
+    target: LatLng(0, 0),
     zoom: 14.4746,
   );
 
   Position? currentPosition;
   var geoLocator = Geolocator();
 
+  // Global key for the scaffold state
   final GlobalKey<ScaffoldState> sKey = GlobalKey<ScaffoldState>();
+
+  // Search container height
+  double searchLocationContainerHeight = 350;
 
   @override
   void initState() {
@@ -71,13 +75,14 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: sKey,
+      key: sKey,  // Scaffold key
       drawer: MyDrawer(
         name: userModelCurrentInfo?.name,
         email: userModelCurrentInfo?.email,
       ),
       body: Stack(
         children: [
+          // Google map widget
           GoogleMap(
             mapType: MapType.normal,
             myLocationButtonEnabled: true,
@@ -91,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
               locatePosition();
             },
           ),
-          //custom hamburger button for drawer
+          // Custom hamburger button for drawer
           Positioned(
             top: 30,
             left: 20,
@@ -106,6 +111,120 @@ class _MainScreenState extends State<MainScreen> {
                   color: Colors.black54,
                 ),
               ),
+            ),
+          ),
+          // Search location container
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: searchLocationContainerHeight,
+              decoration: const BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 8,
+                    spreadRadius: 0.5,
+                    offset: Offset(0.7, 0.7),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Tìm Kiếm Vị Trí",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87, // Darker color for better readability
+                      ),
+                    ),
+                    const SizedBox(height: 20), // Reduced space for tighter layout
+                    GestureDetector(
+                      onTap: () {
+                        // Logic for opening search box
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100], // Lighter background for better contrast
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey[400]!, width: 1), // Add subtle border for a refined look
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.add_location, color: Colors.grey[600]), // Slightly darker icon
+                            const SizedBox(width: 12),
+                            const Text(
+                              "Nhập Vị Trí Công Việc Sẽ Làm",
+                              style: TextStyle(color: Colors.black54), // Lighter text color
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15), // Adjusted spacing between elements
+                    GestureDetector(
+                      onTap: () {
+                        // Logic for opening search box
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey[400]!, width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.add_location, color: Colors.grey[600]),
+                            const SizedBox(width: 12),
+                            const Text(
+                              "Vị Trí Hai Bên Gặp Nhau",
+                              style: TextStyle(color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30), // Space between the text fields and the button
+                    SizedBox(
+                      width: double.infinity, // Make the button take full width
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Logic for searching a supporter
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(vertical: 12), // Increase button height
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2, // Slight shadow for depth
+                        ),
+                        child: const Text(
+                          "Tìm Một Người Hỗ Trợ",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white, // Text color for contrast on the green background
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             ),
           ),
         ],
