@@ -23,19 +23,18 @@ class _MainScreenState extends State<MainScreen> {
     zoom: 14.4746,
   );
 
-  Position? currentPosition;
+  Position? userCurrentPosition;
   var geoLocator = Geolocator();
+  LocationPermission? _locationPermission;
 
-  // Global key for the scaffold state
   final GlobalKey<ScaffoldState> sKey = GlobalKey<ScaffoldState>();
-
-  // Search container height
   double searchLocationContainerHeight = 350;
 
   @override
   void initState() {
     super.initState();
     getUserData();
+    checkIfLocationPermissionAllowed();
   }
 
   void getUserData() async {
@@ -43,46 +42,35 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
   }
 
-  Future<void> locatePosition() async {
-    LocationPermission permission = await Geolocator.checkPermission();
+  checkIfLocationPermissionAllowed() async {
+    _locationPermission = await Geolocator.requestPermission();
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Show dialog for denied permission
-        return;
-      }
+    if (_locationPermission == LocationPermission.denied) {
+      _locationPermission = await Geolocator.requestPermission();
     }
+  }
 
-    if (permission == LocationPermission.deniedForever) {
-      // Show dialog for permanently denied permission
-      return;
-    }
+  locateUserPosition() async {
+    Position cPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    userCurrentPosition = cPosition;
 
-    LocationSettings locationSettings = const LocationSettings(
-      accuracy: LocationAccuracy.high,
-    );
-
-    Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
-    currentPosition = position;
-
-    LatLng latLngPosition = LatLng(position.latitude, position.longitude);
+    LatLng latLngPosition = LatLng(userCurrentPosition!.latitude, userCurrentPosition!.longitude);
 
     CameraPosition cameraPosition = CameraPosition(target: latLngPosition, zoom: 14);
-    newGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+    newGoogleMapController!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: sKey,  // Scaffold key
+      key: sKey,
       drawer: MyDrawer(
         name: userModelCurrentInfo?.name,
         email: userModelCurrentInfo?.email,
       ),
       body: Stack(
         children: [
-          // Google map widget
           GoogleMap(
             mapType: MapType.normal,
             myLocationButtonEnabled: true,
@@ -93,10 +81,9 @@ class _MainScreenState extends State<MainScreen> {
             onMapCreated: (GoogleMapController controller) {
               _controllerGoogleMap.complete(controller);
               newGoogleMapController = controller;
-              locatePosition();
+              locateUserPosition();
             },
           ),
-          // Custom hamburger button for drawer
           Positioned(
             top: 30,
             left: 20,
@@ -113,7 +100,6 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
           ),
-          // Search location container
           Positioned(
             bottom: 0,
             left: 0,
@@ -145,10 +131,10 @@ class _MainScreenState extends State<MainScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87, // Darker color for better readability
+                        color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 20), // Reduced space for tighter layout
+                    const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
                         // Logic for opening search box
@@ -156,23 +142,23 @@ class _MainScreenState extends State<MainScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         decoration: BoxDecoration(
-                          color: Colors.grey[100], // Lighter background for better contrast
+                          color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey[400]!, width: 1), // Add subtle border for a refined look
+                          border: Border.all(color: Colors.grey[400]!, width: 1),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.add_location, color: Colors.grey[600]), // Slightly darker icon
+                            Icon(Icons.add_location, color: Colors.grey[600]),
                             const SizedBox(width: 12),
                             const Text(
                               "Nhập Vị Trí Công Việc Sẽ Làm",
-                              style: TextStyle(color: Colors.black54), // Lighter text color
+                              style: TextStyle(color: Colors.black54),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15), // Adjusted spacing between elements
+                    const SizedBox(height: 15),
                     GestureDetector(
                       onTap: () {
                         // Logic for opening search box
@@ -196,27 +182,27 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 30), // Space between the text fields and the button
+                    const SizedBox(height: 30),
                     SizedBox(
-                      width: double.infinity, // Make the button take full width
+                      width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
                           // Logic for searching a supporter
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(vertical: 12), // Increase button height
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          elevation: 2, // Slight shadow for depth
+                          elevation: 2,
                         ),
                         child: const Text(
                           "Tìm Một Người Hỗ Trợ",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white, // Text color for contrast on the green background
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -224,7 +210,6 @@ class _MainScreenState extends State<MainScreen> {
                   ],
                 ),
               ),
-
             ),
           ),
         ],
